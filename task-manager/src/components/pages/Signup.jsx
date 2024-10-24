@@ -1,29 +1,45 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useSelector} from "react-redux";
 
 function Signup() {
+  
+  const history = useNavigate();
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  if (isLoggedIn === true) {
+    history("/");
+  }
+
   const [Data, setData] = useState({ username: "", email: "", password: "" });
+
   const change = (e) => {
     const { name, value } = e.target;
     setData({ ...Data, [name]: value });
   };
   const submit = async () => {
+    try {
     if (Data.username === "" || Data.email === "" || Data.password === "") {
       alert("All fields  are required!");
     } else {
-      try {
+     
         const response = await axios.post(
           "http://localhost:1000/api/v1/sign-in",
           Data
         );
-        console.log(response);
-      } catch (error) {
-        console.error("Error:", error);
+        setData({username: "", email: "", password: ""})
+        alert(response.Data.message);
 
-        console.log("Request Config:", error.config); // Check config here
+        history("/login");
+
+      
       }
-    }
+      } catch (error) {
+        alert(error.response?.data?.message ||"an error occured");
+      
+        
+      }
+    
   };
   return (
     <>
